@@ -9,7 +9,7 @@ class SQLServer:
     
     CommandCreator = None
     
-    def __init__(self, Server="", Database="", Username="", Password="", trustedConnection = False):
+    def __init__(self, Server, Database, Username="", Password="", trustedConnection = False):
         self.CommandCreator = CommandCreator()
         
         self.ConnectionString = "Driver=SQL Server Native Client 11.0;server={server};database={database};".format(server=Server, database = Database)
