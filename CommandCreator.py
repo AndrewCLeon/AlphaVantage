@@ -35,18 +35,29 @@ class CommandCreator:
         
     #EXECUTE PROCEDURE
         #WITH PARAMETERS
+        
+    def GetTables(self):
+        command = "SELECT TABLE_NAME "
+        command += "FROM INFORMATION_SCHEMA.TABLES"
+        return command
+        
+    def GetTableSchema(self, table):
+        command = "SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE, CHARACTER_MAXIMUM_LENGTH "
+        command += "FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table}'"
+        return command
     
     #ALTER AUTHORIZATION
     def AlterAuthorization(self, objectName:str, newOwner:str, objectType:str = 'database'):
        return "ALTER AUTHORIZATION ON {objectType}::{objectName} TO {newOwner}".format(objectType = objectType, objectName = objectName, newOwner = newOwner)
     
     def DropTable(self, table):
-        return "DROP TABLE {table}".format(table = table)
+        return "{alteration} TABLE {table}".format(alteration = AlterationType.Drop, table = table)
    
     def AlterTable(self, table, target, targetName, dataType = "", alteration:AlterationType = AlterationType.Add):
         
         #Scrub for impossible scenarios
         if target == "COLUMN" and alteration != AlterationType.Drop and dataType == "":
+            print('Unable to {alteration} column without a data type'.format(alteration = alteration))
             return 0
         
         command = "ALTER TABLE {table}\r\n".format(table = table)
@@ -112,7 +123,6 @@ class CommandCreator:
         if commandValues is None or dataSet is None:
             print("Unable to insert with no columns or values specified")
             return None
-        
         
         command = "INSERT INTO [dbo].[{table}] (".format(table=table)
         keys = list(commandValues.keys())
