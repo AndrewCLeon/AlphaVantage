@@ -11,17 +11,18 @@ nasdaq = pd.read_csv("AMEX.csv").iloc[:, :-1]
 nasdaq = nasdaq.sort_values(by=['Symbol'])
 
 f = open('AMEX.csv', 'r')
-
+f.readline()
 contents = f.readline()
 symbols = []
-while contents is not None:
+while contents is not None and contents != "":
     ind = 0
     string = ""
     while ind < len(contents):
         string += contents[ind]
         if contents[ind + 1] == str(","):
-            break
-        
+            ind = len(contents)
+        ind += 1
+    print(string)
     symbols.append(string)
     contents = f.readline()
     
@@ -30,6 +31,12 @@ while contents is not None:
 sql = SQLServer(Server="DESKTOP-T107VRL\SQLEXPRESS", Database="MarketAnalysis", trustedConnection=True)
 
 commandBuilder = CommandCreator()
+
+command = commandBuilder.BuildInsertCommand("AMEX_Symbols", commandValues = { "Symbol":1 }, dataSet = symbols)
+
+sql.ExecuteCommand(command)
+
+
 tempSet = []
 epoch = 0
 for index, row in nasdaq.iterrows():
